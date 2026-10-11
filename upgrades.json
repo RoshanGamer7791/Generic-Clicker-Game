@@ -1,0 +1,13 @@
+{
+    "Points per click +1": {
+        "type": "upgrade_ppc",
+        "cost": 60,
+        "ppc": 1
+    },
+
+    "Points per second +1": {
+        "type": "upgrade_pps",
+        "cost": 60,
+        "pps": 1
+    }
+}
