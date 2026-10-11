@@ -7,7 +7,6 @@
 #include <QVBoxLayout>
 #include <nlohmann/json.hpp>
 #include <fstream>
-#include <qcoreapplication.h>
 // #include <iostream>
 
 using json = nlohmann::json;
@@ -46,7 +45,60 @@ public:
         shopPanel->setWidget(shopPanelWidget);
 
         shopPanel->setGeometry(this->width() - 300, this->height() - 400, 300, 400);
+        
+        QLabel* pointsLbl = new QLabel("Points amount will be here", this);
+        pointsLbl->setStyleSheet(
+            "QLabel {"
+            "   font-size: 20px;"
+            "   font-weight: bold;"
+            "}"
+        );
+        pointsLbl->move((int)this->width() / 2 - 250, 20);
+        pointsLbl->setFixedWidth(400);
+        pointsLbl->setAlignment(Qt::AlignHCenter);
+        
+        QPushButton* clickMeBtn = new QPushButton("Click meeeee", this);
+        clickMeBtn->setGeometry((int)this->width() / 2 - 100, (int)this->height() / 2 - 100, 100, 100);
+        this->connect(clickMeBtn, &QPushButton::clicked, [this]() {
+            this->points += this->ppc;
+        });
+        
+        clickMeBtn->setStyleSheet(
+            "QPushButton {"
+            "   background-color: rgb(75, 0, 255);"
+            "   border: 2px solid white;"
+            "   border-radius: 10px;"
+            "}"
+            "QPushButton:hover {"
+            "   background-color: rgb(60, 0, 255);"
+            "}"
+            "QPushButton:pressed {"
+            "   background-color: rgb(50, 0, 255);"
+            "}"
+        );
 
+        QLabel* pointsPerSecondLbl = new QLabel("Points per second: 1", this);
+        pointsPerSecondLbl->setStyleSheet(
+            "QLabel {"
+            "   font-size: 20px;"
+            "   font-weight: bold;"
+            "}"
+        );
+        pointsPerSecondLbl->move((int)this->width() / 2 - 250, 50);
+        pointsPerSecondLbl->setFixedWidth(400);
+        pointsPerSecondLbl->setAlignment(Qt::AlignHCenter);
+        
+        QLabel* pointsPerClickLbl = new QLabel("Points per click: 1", this);
+        pointsPerClickLbl->setStyleSheet(
+            "QLabel {"
+            "   font-size: 20px;"
+            "   font-weight: bold;"
+            "}"
+        );
+        pointsPerClickLbl->move((int)this->width() / 2 - 250, 70);
+        pointsPerClickLbl->setFixedWidth(400);
+        pointsPerClickLbl->setAlignment(Qt::AlignHCenter);
+        
         for (auto item: this->upgrades.items()) {
             std::string key = item.key();
             json value = item.value();
@@ -67,55 +119,27 @@ public:
             );
 
             if (value["type"] == "upgrade_ppc") {
-                this->connect(upgradeBtn, &QPushButton::clicked, [this, value, cost]() {
+                this->connect(upgradeBtn, &QPushButton::clicked, [this, value, cost, pointsPerClickLbl] () {
                     if (this->points >= cost) {
                         this->ppc += value["ppc"].get<double>();
                         this->points -= value["cost"].get<double>();
+                        pointsPerClickLbl->setText("Points per click: " + QString::number(this->ppc));
                     }
                 });
             }
-
+            
             if (value["type"] == "upgrade_pps") {
-                this->connect(upgradeBtn, &QPushButton::clicked, [this, value, cost]() {
+                this->connect(upgradeBtn, &QPushButton::clicked, [this, value, cost, pointsPerSecondLbl] () {
                     if (this->points >= cost) {
                         this->pps += value["pps"].get<double>();
                         this->points -= value["cost"].get<double>();
+                        pointsPerSecondLbl->setText(QString("Points per second: ") + QString::number(this->pps));
                     }
                 });
             }
 
             shopPanelLayout->addWidget(upgradeBtn);
         }
-
-        QPushButton* clickMeBtn = new QPushButton("Click meeeee", this);
-        clickMeBtn->setGeometry((int)this->width() / 2 - 100, (int)this->height() / 2 - 100, 100, 100);
-        this->connect(clickMeBtn, &QPushButton::clicked, [this]() {
-            this->points += this->ppc;
-        });
-
-        clickMeBtn->setStyleSheet(
-            "QPushButton {"
-            "   background-color: rgb(75, 0, 255);"
-            "   border: 2px solid white;"
-            "   border-radius: 10px;"
-            "}"
-            "QPushButton:hover {"
-            "   background-color: rgb(60, 0, 255);"
-            "}"
-            "QPushButton:pressed {"
-            "   background-color: rgb(50, 0, 255);"
-            "}"
-        );
-
-        QLabel* pointsLbl = new QLabel("Points amount will be here", this);
-        pointsLbl->setStyleSheet(
-            "QLabel {"
-            "   font-size: 20px;"
-            "   font-weight: bold;"
-            "}"
-        );
-        pointsLbl->move((int)this->width() / 2 - 200, 20);
-        pointsLbl->setFixedWidth(400);
 
         QTimer *pointsPerSecondLoop = new QTimer(this);
         this->connect(pointsPerSecondLoop, &QTimer::timeout, [this, pointsLbl]() {
